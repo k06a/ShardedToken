@@ -14,10 +14,10 @@ contract ShardedToken is IShardedToken, ShardedBase, Ownable {
     function mint(address to, uint256 amount) public {
         require(msg.sender == owner(), "Access denied");
         totalSupply = totalSupply.add(amount);
-        ShardedTokenExtension(to).receive(address(0), amount);
+        ShardedTokenExtension(to).received(address(0), amount);
     }
 
-    function burn(address /*from*/, uint256 amount) public protected {
+    function burned(address /*from*/, uint256 amount) public protected {
         totalSupply = totalSupply.sub(amount);
     }
 
@@ -41,10 +41,10 @@ contract ShardedTokenExtension is IShardedTokenExtension, ShardedExt, Ownable {
 
     function transfer(address to, uint256 amount) public onlyOwner {
         _balance = _balance.sub(amount, "Not enough balance");
-        ShardedTokenExtension(to).receive(address(this), amount);
+        ShardedTokenExtension(to).received(address(this), amount);
     }
 
-    function receive(address /*from*/, uint256 amount) public protected {
+    function received(address /*from*/, uint256 amount) public protected {
         _balance = _balance.add(amount);
     }
 
@@ -67,6 +67,6 @@ contract ShardedTokenExtension is IShardedTokenExtension, ShardedExt, Ownable {
     //
 
     function burn(uint256 amount) public onlyOwner {
-        ShardedToken(address(shardedBase)).burn(owner(), amount);
+        ShardedToken(address(shardedBase)).burned(owner(), amount);
     }
 }
