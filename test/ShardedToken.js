@@ -4,10 +4,10 @@ const { expect } = require('chai');
 const ShardedToken = artifacts.require('ShardedToken');
 const ShardedTokenExtension = artifacts.require('ShardedTokenExtension');
 
-async function extractEventExtensionInstalled(txReceipt) {
+async function extractEventExtensionInstalled (txReceipt) {
     const records = txReceipt.logs.filter(record => record.event === 'ExtensionInstalled');
     expect(records.length).to.be.equal(1);
-    return await ShardedTokenExtension.at(records[0].args.extension);
+    return ShardedTokenExtension.at(records[0].args.extension);
 }
 
 contract('ShardedToken', function ([_, w1, w2, w3]) {
@@ -100,7 +100,7 @@ contract('ShardedToken', function ([_, w1, w2, w3]) {
                 const txReceipt = await this.token.installExtension({ from: w1 });
                 const ext = await extractEventExtensionInstalled(txReceipt);
 
-                await this.token.mint(w1, 1000)
+                await this.token.mint(w1, 1000);
                 await expectRevert.unspecified(
                     ext.transfer(w2, 100, { from: w1 })
                 );
@@ -124,8 +124,7 @@ contract('ShardedToken', function ([_, w1, w2, w3]) {
                 const txReceipt1 = await this.token.installExtension({ from: w1 });
                 const ext1 = await extractEventExtensionInstalled(txReceipt1);
 
-                const txReceipt2 = await this.token.installExtension({ from: w2 });
-                const ext2 = await extractEventExtensionInstalled(txReceipt2);
+                await this.token.installExtension({ from: w2 });
 
                 await this.token.mint(w1, 1000);
                 await expectRevert.unspecified(
