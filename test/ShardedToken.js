@@ -24,9 +24,11 @@ contract('ShardedToken', function ([_, w1, w2, w3]) {
         it('Should contain right extension bytecode', async function () {
             const ext = await ShardedTokenExtension.new();
 
-            // If this check fails copy new bytecode from error message to ShardedToken constructor
-            if (trimBytecode(await this.token.extensionBytecode()) !== trimBytecode(ext.constructor._json.bytecode)) {
-                expect(ext.constructor._json.bytecode).false;
+            if (!process.env.SOLIDITY_COVERAGE) {
+                // If this check fails copy new bytecode from error message to ShardedToken constructor
+                if (trimBytecode(await this.token.extensionBytecode()) !== trimBytecode(ext.constructor._json.bytecode)) {
+                    expect(ext.constructor._json.bytecode).false;
+                }
             }
         });
 
