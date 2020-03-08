@@ -12,7 +12,7 @@ async function extractEventExtensionInstalled (txReceipt) {
 
 // https://solidity.readthedocs.io/en/v0.4.24/metadata.html#encoding-of-the-metadata-hash-in-the-bytecode
 function trimBytecode (bytecode) {
-    return bytecode.substr(0, bytecode.length - 34 * 2);
+    return bytecode.substr(0, bytecode.length - 43 * 2); // Trim 43 bytes in hex
 }
 
 contract('ShardedToken', function ([_, w1, w2, w3]) {
@@ -24,7 +24,7 @@ contract('ShardedToken', function ([_, w1, w2, w3]) {
         it('Should contain right extension bytecode', async function () {
             const ext = await ShardedTokenExtension.new();
 
-            // If this check fails copy new bytecode to ShardedToken constructor
+            // If this check fails copy new bytecode from error message to ShardedToken constructor
             if (trimBytecode(await this.token.extensionBytecode()) !== trimBytecode(ext.constructor._json.bytecode)) {
                 expect(ext.constructor._json.bytecode).false;
             }
