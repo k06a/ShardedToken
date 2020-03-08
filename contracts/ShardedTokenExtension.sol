@@ -47,7 +47,6 @@ contract ShardedTokenExtension is IShardedTokenExtension, ShardedExt, Ownable {
 
     function _transfer(address to, uint256 amount) internal {
         _balance = _balance.sub(amount, "ShardedTokenExtension: Not enough balance");
-        address ext = Create2Hash.computeAddress(bytes32(uint256(to)), thisExtensionHash, base);
-        IShardedTokenExtension(ext).received(owner(), amount);
+        IShardedTokenExtension(extensionOf(to)).received(owner(), amount);
     }
 }

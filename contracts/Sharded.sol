@@ -25,7 +25,7 @@ contract ShardedBase {
     );
 
     modifier onlyExtensionOfUser(address user) {
-        require(msg.sender == Create2Hash.computeAddress(bytes32(uint256(user)), extensionBytecodeHash, address(this)));
+        require(msg.sender == extensionOf(user));
         _;
     }
 
@@ -38,6 +38,10 @@ contract ShardedBase {
         extension = Create2.deploy(bytes32(uint256(msg.sender)), extensionBytecode);
         ShardedExt(extension).setExtensionHash(extensionBytecodeHash);
         emit ExtensionInstalled(msg.sender, extension);
+    }
+
+    function extensionOf(address user) public returns(address) {
+        return Create2Hash.computeAddress(bytes32(uint256(user)), extensionBytecodeHash, address(this));
     }
 }
 
@@ -52,13 +56,17 @@ contract ShardedExt {
     }
 
     modifier onlyExtensionOfUser(address user) {
-        require(msg.sender == Create2Hash.computeAddress(bytes32(uint256(user)), thisExtensionHash, base));
+        require(msg.sender == extensionOf(user));
         _;
     }
 
     modifier onlyBaseOrExtensionOfUser(address user) {
-        require(msg.sender == base || msg.sender == Create2Hash.computeAddress(bytes32(uint256(user)), thisExtensionHash, base));
+        require(msg.sender == base || msg.sender == extensionOf(user));
         _;
+    }
+
+    function extensionOf(address user) public returns(address) {
+        return Create2Hash.computeAddress(bytes32(uint256(user)), thisExtensionHash, base);
     }
 
     function setExtensionHash(bytes32 hash) public onlyBase {
