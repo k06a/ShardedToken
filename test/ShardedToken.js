@@ -10,9 +10,9 @@ async function extractEventExtensionInstalled (txReceipt) {
     return ShardedTokenExtension.at(records[0].args.extension);
 }
 
-// https://solidity.readthedocs.io/en/v0.4.24/metadata.html#encoding-of-the-metadata-hash-in-the-bytecode
+// https://solidity.readthedocs.io/en/v0.5.15/metadata.html#encoding-of-the-metadata-hash-in-the-bytecode
 function trimBytecode (bytecode) {
-    return bytecode.substr(0, bytecode.length - 43 * 2); // Trim 43 bytes in hex
+    return bytecode.substr(0, bytecode.length - 52 * 2); // Trim 52 bytes in hex
 }
 
 contract('ShardedToken', function ([_, w1, w2, w3]) {
