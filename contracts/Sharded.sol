@@ -1,18 +1,8 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/utils/Create2.sol";
-
-
-// Wait until 0penZeppelin 2.6.0 integrate this:
-// https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2088
-library Create2Hash {
-    function computeAddress(bytes32 salt, bytes32 bytecodeHash, address deployer) internal pure returns (address) {
-        bytes32 _data = keccak256(
-            abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash)
-        );
-        return address(bytes20(_data << 96));
-    }
-}
 
 
 contract ShardedBase {
@@ -34,14 +24,14 @@ contract ShardedBase {
         extensionBytecodeHash = keccak256(extension);
     }
 
-    function installExtension() public returns(address extension) {
-        extension = Create2.deploy(bytes32(uint256(msg.sender)), extensionBytecode);
+    function installExtension() public virtual returns(address extension) {
+        extension = Create2.deploy(0, bytes32(uint256(msg.sender)), extensionBytecode);
         ShardedExt(extension).setExtensionHash(extensionBytecodeHash);
         emit ExtensionInstalled(msg.sender, extension);
     }
 
-    function extensionOf(address user) public returns(address) {
-        return Create2Hash.computeAddress(bytes32(uint256(user)), extensionBytecodeHash, address(this));
+    function extensionOf(address account) public view virtual returns(address) {
+        return Create2.computeAddress(bytes32(uint256(account)), extensionBytecodeHash);
     }
 }
 
@@ -65,12 +55,12 @@ contract ShardedExt {
         _;
     }
 
-    function extensionOf(address user) public returns(address) {
-        return Create2Hash.computeAddress(bytes32(uint256(user)), thisExtensionHash, base);
+    function extensionOf(address user) public view returns(address) {
+        return Create2.computeAddress(bytes32(uint256(user)), thisExtensionHash, base);
     }
 
     function setExtensionHash(bytes32 hash) public onlyBase {
-        require(uint256(thisExtensionHash) == 0, "ShardedExt: access denied");
+        require(thisExtensionHash == bytes32(0), "ShardedExt: access denied");
         thisExtensionHash = hash;
     }
 }

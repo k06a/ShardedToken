@@ -1,7 +1,9 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Sharded.sol";
 import "./IShardedToken.sol";
 import "./ShardedTokenExtension.sol";
@@ -19,18 +21,18 @@ contract ShardedToken is IShardedToken, ShardedBase, Ownable {
     constructor() public ShardedBase(type(ShardedTokenExtension).creationCode) {
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
+    function mint(address to, uint256 amount) public override onlyOwner {
         totalSupply = totalSupply.add(amount);
         IShardedTokenExtension(extensionOf(to)).received(address(0), amount);
         emit Mint(to, amount);
     }
 
-    function burned(address from, uint256 amount) public onlyExtensionOfUser(from) {
+    function burned(address from, uint256 amount) public override onlyExtensionOfUser(from) {
         totalSupply = totalSupply.sub(amount);
         emit Burn(from, amount);
     }
 
-    function installExtension() public returns(address extension) {
+    function installExtension() public override returns(address extension) {
         extension = super.installExtension();
         Ownable(extension).transferOwnership(msg.sender);
     }
